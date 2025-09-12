@@ -11,7 +11,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@heroui/button": "^2.2.26",
     "@mantine/core": "^8.1.0",
+    "@mantine/dates": "^8.3.1",
     "@mantine/form": "^8.1.0",
     "@mantine/hooks": "^8.1.0",
     "@mantine/modals": "^8.1.0",
