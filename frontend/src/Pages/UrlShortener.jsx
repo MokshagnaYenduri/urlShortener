@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { TextInput, Center, Stack, Text, Button, Anchor } from "@mantine/core";
 import Service from "../utils/http";
+import {QRCodeSVG} from 'qrcode.react';
 
 const UrlShortener = () => {
   const [originalUrl, setOriginalUrl] = useState("");
@@ -23,11 +24,12 @@ const UrlShortener = () => {
 
   return (
     <Center style={{ height: "90vh" }}>
-      {!shortUrlData ? (
-        <Stack gap="sm">
-          <Text
-            variant="gradient"
-            gradient={{ from: "pink", to: "indigo", deg: 90 }}
+      <Stack gap="sm">
+        {!shortUrlData ? (
+          <>
+            <Text
+              variant="gradient"
+              gradient={{ from: "pink", to: "indigo", deg: 90 }}
             size="30px"
             fw={700}
           >
@@ -73,13 +75,18 @@ const UrlShortener = () => {
           >
             Shorten URL
           </Button>
-          
-        </Stack>
+        </>
       ) : (
-        <Anchor href={`${service.getBaseURL()}/api/s/${shortUrlData?.shortCode}`} target="_blank">
-          {`${service.getBaseURL()}/api/s/${shortUrlData?.shortCode}`}
-        </Anchor>
+        <>
+          <Anchor href={`${service.getBaseURL()}/api/s/${shortUrlData?.shortCode}`} target="_blank">
+            {`${service.getBaseURL()}/api/s/${shortUrlData?.shortCode}`}
+          </Anchor>
+          <center marginTop="20px">
+            <QRCodeSVG value={`${service.getBaseURL()}/api/s/${shortUrlData?.shortCode}`} />
+          </center>
+        </>
       )}
+      </Stack>
     </Center>
   );
 };
