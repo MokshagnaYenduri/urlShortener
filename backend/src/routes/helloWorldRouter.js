@@ -10,5 +10,6 @@ helloWorldRouter.get('/', doNothingController);
 helloWorldRouter.post('/getData', getDataFromFrontend);
 helloWorldRouter.get('/:productId/:userId/:courseId', getDataFromFrontend);
 
+helloWorldRouter.post('/print', printHelloWorld);
 
 export default helloWorldRouter;
