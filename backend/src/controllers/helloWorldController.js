@@ -1,9 +1,7 @@
 export const printHelloWorld = (req, res) => {
     try{
-        const cookies = req.cookies;
-        console.log("Cookies received:", cookies);
-        res.status(200).json({ message: "Successfully printed the message.",
-                                data: cookies});
+        console.log("Hello, World!");
+        res.status(200).json({ message: "Hello, World!" });
     } catch (error) {
         console.error("Error printing Hello, World!", error.message);
         res.status(500).json({ error: "Internal Server Error" });
