@@ -78,12 +78,12 @@ const UrlShortener = () => {
         </>
       ) : (
         <>
-          <Anchor href={`${service.getBaseURL()}/api/s/${shortUrlData?.shortCode}`} target="_blank">
-            {`${service.getBaseURL()}/api/s/${shortUrlData?.shortCode}`}
-          </Anchor>
-          <center marginTop="20px">
-            <QRCodeSVG value={`${service.getBaseURL()}/api/s/${shortUrlData?.shortCode}`} />
-          </center>
+          <Anchor href={`${service.getBaseURL()}/api/s/${shortUrlData?.data?.shortCode}`} target="_blank">
+  {`${service.getBaseURL()}/api/s/${shortUrlData?.data?.shortCode}`}
+</Anchor>
+
+<QRCodeSVG value={`${service.getBaseURL()}/api/s/${shortUrlData?.data?.shortCode}`} />
+
         </>
       )}
       </Stack>

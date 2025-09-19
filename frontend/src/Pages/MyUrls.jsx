@@ -11,7 +11,7 @@ const MyUrls = () => {
       const response = await service.get("user/my/urls");
       console.log(response);
       // store only the shortURLs array
-      setData(response.shortURLs || []);
+      setData(response.data || []);
     } catch (error) {
       console.error("Error fetching data:", error);
     }

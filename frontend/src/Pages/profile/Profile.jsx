@@ -10,7 +10,7 @@ const Profile = () => {
     const getData = async () => {
       const response = await service.get("user/me");
       console.log(response);
-      setUserData(response);
+      setUserData(response.data);
     };
     getData();
   }, []);
