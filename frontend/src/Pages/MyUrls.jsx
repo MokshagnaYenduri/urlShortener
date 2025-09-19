@@ -30,6 +30,7 @@ const MyUrls = () => {
             <Table.Th>Original URL</Table.Th>
             <Table.Th>Short URL</Table.Th>
             <Table.Th>Expiry</Table.Th>
+            <Table.Th>Actions</Table.Th>
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>

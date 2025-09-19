@@ -67,3 +67,28 @@ export const createShortURL = async (req, res) => {
             });
         }
     }
+export const deleteShortUrl = async (req, res) => {
+    try{
+        const {shortUrl} = req.params;
+        const existed = await ShortURL.findOne({shortCode: shortUrl});
+        if(!existed) {
+            return res.status(404).json({
+                message: "Short URL not found"
+            });
+        }
+
+        existed.isActive = false;
+        await existed.save();
+        
+        return res.status(200).json({
+            message: "Short URL deleted successfully"
+        });
+    }
+    catch(error) {
+        console.error("Error deleting short URL:", error.message);
+        return res.status(500).json({
+            message: "Error from deleting short URL",
+            error: "Internal Server Error"
+        });
+    }
+}
