@@ -4,7 +4,7 @@ import {nanoid} from "nanoid";
 
 export const createShortURL = async (req, res) => {
     try {
-        let {originalUrl, title, expiryDate, customUrl} = req.body;
+        let {originalUrl, title, expiresAt: expiryDate, customUrl} = req.body;
         const userId = req.user.id;
         let newNanoId = nanoid(7);
 
@@ -15,19 +15,25 @@ export const createShortURL = async (req, res) => {
         }
 
         if(customUrl) {
-            const existing = await ShortURL.findOne({ shortCode: customUrl});
+            // Ensure customUrl is treated as string
+            const customUrlString = String(customUrl);
+            const existing = await ShortURL.findOne({ shortCode: customUrlString});
             if(!existing) {
-                newNanoId = customUrl;
+                newNanoId = customUrlString;
             }
         }
+
 
         const newSortCode = await ShortURL.create({
             originalUrl,
             title,
-            shortCode: newNanoId,
-            expiresAt: new Date(expiryDate),
+            shortCode: String(newNanoId), // Ensure it's stored as string
+            expiresAt: expiryDate && String(expiryDate).length > 0 ? new Date(expiryDate) : null,
             userId,
+            isActive: true
         });
+
+        console.log("Created ShortURL:", newSortCode); // Add this line
 
         res.status(200).json({
             message: "Short URL created successfully",
@@ -41,53 +47,109 @@ export const createShortURL = async (req, res) => {
             error: "Internal Server Error"
         });
     }
-   
 }
 
- export const redirectToOriginalURL = async (req, res) => {
-        try{
-            const { shortCode } = req.params;
 
-            const doc = await ShortURL.findOne({ shortCode });
+export const redirectToOriginalUrl = async (req, res) => {
+    try {
+        const { shortCode } = req.params;
+        
+        // Ensure shortCode is treated as string
+        const codeToSearch = String(shortCode);
 
-            if(!doc){
-                return res.status(404).json(
-                    {
-                        message: "Short URL not found"
-                    }
-                );
-            }
-            const originalUrl = doc.originalUrl;
-            return res.redirect(originalUrl);
-        } catch (error) {
-            console.error("Error redirecting to original URL:", error.message);
-            return res.status(500).json({
-                message: "Error from redirecting to original URL",
-                error: "Internal Server Error"
-            });
+        const doc = await ShortURL.findOne({ shortCode: codeToSearch });
+        if (!doc) {
+            return res.status(404).json({ message: "Short URL not exists" });
         }
+
+        // Check if URL is active
+        if (!doc.isActive) {
+            return res.status(404).json({ message: "Short URL is inactive" });
+        }
+
+        // Increment click count
+        doc.clickCount = (doc.clickCount || 0) + 1;
+        await doc.save();
+
+        const originalUrl = doc.originalUrl;
+
+        // Redirect to the original URL
+        return res.redirect(originalUrl);
+        
+    } catch (error) {
+        console.error("Error redirecting to original URL:", error.message);
+        return res.status(500).json({
+            message: "error from redirecting to original URL",
+            error: "Internal Server Error"
+        });
     }
-export const deleteShortUrl = async (req, res) => {
-    try{
-        const {shortUrl} = req.params;
-        const existed = await ShortURL.findOne({shortCode: shortUrl});
-        if(!existed) {
-            return res.status(404).json({
-                message: "Short URL not found"
+}
+
+export const updateShortURLController = async (req, res) => {
+    try {
+        const { shortURL } = req.params;
+        const updateData = req.body;
+
+        // Ensure shortURL is treated as string
+        const codeToSearch = String(shortURL);
+
+        const existed = await ShortURL.findOne({ shortCode: codeToSearch });
+        if (!existed) {
+            return res.status(404).json({ 
+                status: "Not Found",
+                message: "Short URL not exists" });
+        }
+
+        const updatedRecord = await ShortURL.findOneAndUpdate(
+            { shortCode: codeToSearch },
+            { ...updateData },
+            { new: true }
+        );
+        res.status(200).json({
+            message: "Short URL updated successfully",
+            data: updatedRecord
+        });
+
+    } catch (error) {
+        console.error("Error updating short URL:", error.message);
+        res.status(500).json({
+            message: "error from updating short URL",
+            error: "Internal Server Error"
+        });
+    }
+}
+
+export const deleteShortURLController = async (req, res) => {
+    try {
+        const { shortURL } = req.params;
+        
+        const codeToSearch = String(shortURL);
+        
+        const existed = await ShortURL.findOne({ shortCode: codeToSearch });
+        if (!existed) {
+            return res.status(404).json({ 
+                status: "Not Found",
+                message: "Short URL not exists" });
+        }
+
+        if (!existed.isActive) {
+            await ShortURL.deleteOne({ shortCode: codeToSearch });
+            return res.status(200).json({
+                message: "Short URL permanently deleted"
             });
         }
 
         existed.isActive = false;
         await existed.save();
-        
-        return res.status(200).json({
+
+        res.status(200).json({
             message: "Short URL deleted successfully"
         });
-    }
-    catch(error) {
+
+    } catch (error) {
         console.error("Error deleting short URL:", error.message);
-        return res.status(500).json({
-            message: "Error from deleting short URL",
+        res.status(500).json({
+            message: "error from deleting short URL",
             error: "Internal Server Error"
         });
     }

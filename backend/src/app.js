@@ -31,7 +31,9 @@ app.use(cookieParser());
 connectDB();
 
 
-
+app.get("/", (req, res) => {
+  res.send("API is running...");
+});
 app.use("/api/auth", authRouter);
 app.use("/api/hello", helloWorldRouter);
 app.use("/api/user", userRouter);
